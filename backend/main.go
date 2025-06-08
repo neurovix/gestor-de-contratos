@@ -6,10 +6,15 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/neurovix/tramites/backend/src/database"
 )
 
 func main() {
 	var err error
+
+	if _, err = database.ConnDB(); err != nil {
+		log.Println(err.Error())
+	}
 
 	if err = godotenv.Load(".env"); err != nil {
 		log.Println(err.Error())
