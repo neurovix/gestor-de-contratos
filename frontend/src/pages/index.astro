@@ -1,11 +1,46 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import NavbarOut from '../components/NavbarOut.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<main class="min-h-screen bg-gray-50">
+		<NavbarOut />
+
+		<section class="text-center pt-36 px-40">
+			<h1 class="text-7xl font-extrabold">Bienvenido a la plataforma de gestión de tramites</h1>
+			<p class="mt-4 text-xl py-2">Optimiza el proceso de firma de distintos tramites con nuestros flujos en linea y seguros.</p>
+			<p class="mt-2 text-lg text-blue-700">Fácil y rapido, sin tanto archivo fisico</p>
+		</section>
+
+		<section class="py-16 bg-white">
+			<div class="max-w-4xl mx-auto text-center">
+				<h2 class="text-3xl font-semibold text-gray-800">¿Por qué usarla?</h2>
+				<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8">
+					<div class="bg-gray-100 p-6 rounded-xl shadow-md">
+						<h3 class="font-semibold text-xl text-blue-600">Fácil de usar</h3>
+						<p class="mt-4 text-gray-700">Envio de autorizacion a diferentes directivos intuitivamente.</p>
+					</div>
+					<div class="bg-gray-100 p-6 rounded-xl shadow-md">
+						<h3 class="font-semibold text-xl text-blue-600">Seguro y legal</h3>
+						<p class="mt-4 text-gray-700">Cumplimiento total con las normativas de firma digital y validez legal.</p>
+					</div>
+					<div class="bg-gray-100 p-6 rounded-xl shadow-md">
+						<h3 class="font-semibold text-xl text-blue-600">Automatización</h3>
+						<p class="mt-4 text-gray-700">Ahorra tiempo con el flujo automático de aprobación de tramites.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="py-13 bg-blue-700 text-white">
+			<div class="max-w-4xl mx-auto text-center">
+				<h2 class="text-3xl font-semibold">Comienza a usar la plataforma hoy mismo</h2>
+				<p class="mt-4 text-lg">¡Regístrate o inicia sesión para empezar a gestionar tus tramites de manera más eficiente!</p>
+				<div class="mt-8">
+					<a href="/login" class="bg-yellow-500 text-black px-6 py-3 rounded-xl text-lg font-semibold">Iniciar sesión</a>
+				</div>
+			</div>
+		</section>
+	</main>
 </Layout>
