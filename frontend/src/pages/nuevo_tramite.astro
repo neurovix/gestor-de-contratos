@@ -1,8 +1,7 @@
 ---
+// mismo layout y navbar
 import NavbarIn from "../components/NavbarIn.astro";
 import Layout from "../layouts/Layout.astro";
-import KimberlyLogo from "../assets/logo.png";
-import { Image } from "astro:assets";
 ---
 
 <Layout>
@@ -13,8 +12,9 @@ import { Image } from "astro:assets";
       <div class="flex flex-col gap-4">
         <input
           type="text"
+          id="nombre_tramite"
           placeholder="Nombre del trámite"
-          class="p-2 border border-gray-300 rounded-md"
+          class="p-2 border border-gray-300 rounded-md mb-5"
         />
 
         <label
@@ -30,87 +30,54 @@ import { Image } from "astro:assets";
           <input
             id="pdf-upload"
             type="file"
+            name="pdf"
             accept="application/pdf"
-            class="hidden"
+            required
           />
         </label>
-        <h1 class="text-xl font-bold font-rubik">Agregar verificadores</h1>
-        <div class="flex flex-row items-center justify-between w-full">
-          <div
-            class="flex flex-col md:flex-row items-start md:items-center gap-2"
-          >
-            <p
-              class="bg-green-400 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full text-sm"
-            >
-              1
-            </p>
-            <p><strong>Planta: </strong>Ramos Arizpe, Coahuila.</p>
-            <p>Fernando Alejandro Vazquez Medina</p>
-          </div>
 
-          <button
-            class="bg-red-600 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-700 transition"
-          >
-            -
-          </button>
-        </div>
-        <div class="flex flex-row items-center justify-between w-full">
-          <div
-            class="flex flex-col md:flex-row items-start md:items-center gap-2"
-          >
-            <p
-              class="bg-green-400 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full text-sm"
-            >
-              2
-            </p>
-            <p><strong>Planta: </strong>Ramos Arizpe, Coahuila.</p>
-            <p>Fernando Alejandro Vazquez Medina</p>
-          </div>
+        <h1 class="text-xl font-bold font-rubik mt-5 mb-2">
+          Agregar verificadores
+        </h1>
 
-          <button
-            class="bg-red-600 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-700 transition"
-          >
-            -
-          </button>
-        </div>
-        <div class="flex flex-row items-center justify-between w-full">
+        <!-- INICIO AGREGAR VERIFICADORES -->
+        <div id="verificadores-container">
           <div
-            class="flex flex-col md:flex-row items-start md:items-center gap-2"
+            class="flex flex-row w-full px-15 items-center verificador-item my-3"
           >
-            <p
-              class="bg-green-400 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full text-sm"
-            >
-              3
-            </p>
-            <p><strong>Planta: </strong>Ramos Arizpe, Coahuila.</p>
-            <p>Fernando Alejandro Vazquez Medina</p>
+            <div class="w-3/12 flex flex-row items-center">
+              <h1
+                class="bg-blue-700 rounded-full h-8 w-8 text-center font-bold flex items-center justify-center text-white mr-5 numero-verificador"
+              >
+                1
+              </h1>
+              <select
+                class="w-full rounded-lg shadow-xl border-2 border-gray-700 px-4 py-2 planta-select"
+              >
+                <option value="1">Planta Bajio</option>
+                <option value="2">Planta Prosede</option>
+                <option value="3">Planta Ramos Arizpe</option>
+              </select>
+            </div>
+            <div class="w-8/12 mx-5">
+              <select
+                class="w-full border-2 border-gray-700 px-4 py-2 shadow-xl rounded-lg usuario-select"
+              >
+                <option value="1">Fernando Alejandro Vazquez Medina</option>
+                <option value="2">Alejandro Vazquez Cortes</option>
+              </select>
+            </div>
+            <div class="w-1/12 flex justify-center">
+              <button
+                type="button"
+                class="bg-red-600 h-8 w-8 font-bold text-white text-2xl rounded-full eliminar-verificador"
+                >-</button
+              >
+            </div>
           </div>
-
-          <button
-            class="bg-red-600 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-700 transition"
-          >
-            -
-          </button>
         </div>
-        <div class="flex flex-row items-center justify-between w-full">
-          <div
-            class="flex flex-col md:flex-row items-start md:items-center gap-2"
-          >
-            <p
-              class="bg-green-400 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full text-sm"
-            >
-              4
-            </p>
-            <p><strong>Planta: </strong>Ramos Arizpe, Coahuila.</p>
-            <p>Fernando Alejandro Vazquez Medina</p>
-          </div>
+        <!-- FIN AGREGAR VERIFICADORES -->
 
-          <button
-            class="bg-red-600 font-bold text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-700 transition"
-          >
-            -
-          </button>
-        </div>
         <div class="flex justify-center items-center my-5">
           <button
             class="text-3xl font-bold w-10 h-10 bg-green-500 hover:bg-green-700 rounded-full text-white"
@@ -118,75 +85,130 @@ import { Image } from "astro:assets";
           >
         </div>
 
-        <!-- Modal para agregar verificador -->
-        <div
-          id="modal"
-          class="fixed inset-0 flex items-center justify-center z-50 invisible opacity-0 transition-opacity duration-300"
+        <button
+          class="bg-green-700 w-full py-2 rounded-lg font-bold text-white hover:bg-green-900"
+          id="crear-tramite-btn"
+          type="button"
         >
-          <div
-            class="bg-white w-full max-w-md mx-4 rounded-xl p-6 relative shadow-xl border-2 border-gray-400"
-          >
-            <!-- Botón para cerrar -->
-            <button
-              id="cerrarModal"
-              class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold"
-            >
-              &times;
-            </button>
-
-            <Image
-              class="mx-auto w-40"
-              src={KimberlyLogo}
-              alt="Kimberly Logo"
-            />
-            <h1 class="font-rubik text-center mb-4 font-bold text-3xl">
-              Agregar verificador
-            </h1>
-            <label for="planta" class="mt-4 font-rubik font-bold text-xl">Selecciona la planta:</label>
-            <select
-              name="planta"
-              id="planta"
-              class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1"
-            >
-              <option value="ramos">Ramos Arizpe</option>
-              <option value="cdmx">CDMX</option>
-              <option value="zacatecas">Zacatecas</option>
-              <option value="guerrero">Guerrero</option>
-              <option value="monterrey">Monterrey</option>
-            </select>
-            <label for="empleado" class="mt-4 font-rubik font-bold text-xl">Selecciona el empleado:</label>
-            <select
-              name="empleado"
-              id="empleado"
-              class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1"
-            >
-              <option value="1">Fernando Alejandro Vazquez Medina</option>
-              <option value="2">Alejandro Vazquez Cortes</option>
-              <option value="3">Norma Leticia Medina Cortes</option>
-              <option value="4">Mariajose Vazquez Medina</option>
-              <option value="5">Antonia Cortez Luna</option>
-            </select>
-            <button class="bg-green-500 w-full py-2 rounded-lg text-white my-2 font-rubik hover:bg-green-700"
-              >AGREGAR</button
-            >
-          </div>
-        </div>
+          CREAR
+        </button>
       </div>
     </section>
 
     <script>
-      const btnAbrir = document.getElementById("agregar");
-      const modal = document.getElementById("modal");
-      const btnCerrar = document.getElementById("cerrarModal");
+      document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById("verificadores-container");
+        const agregarBtn = document.getElementById("agregar");
 
-      btnAbrir.addEventListener("click", () => {
-        modal.classList.remove("invisible", "opacity-0");
-        modal.classList.add("visible", "opacity-100");
-      });
+        agregarBtn.addEventListener("click", () => {
+          const items = container.querySelectorAll(".verificador-item");
+          const ultimo = items[items.length - 1];
+          const nuevo = ultimo.cloneNode(true);
+          const nuevoNumero = items.length + 1;
+          nuevo.querySelector(".numero-verificador").innerText = nuevoNumero;
+          nuevo.querySelectorAll("select").forEach((select) => {
+            select.selectedIndex = 0;
+          });
+          container.appendChild(nuevo);
+        });
 
-      btnCerrar.addEventListener("click", () => {
-        modal.classList.add("invisible", "opacity-0");
-        modal.classList.remove("visible", "opacity-100");
+        container.addEventListener("click", (e) => {
+          if (e.target.classList.contains("eliminar-verificador")) {
+            const items = container.querySelectorAll(".verificador-item");
+            if (items.length > 1) {
+              e.target.closest(".verificador-item").remove();
+              container
+                .querySelectorAll(".numero-verificador")
+                .forEach((el, index) => {
+                  el.innerText = index + 1;
+                });
+            }
+          }
+        });
+
+        // ✅ Lógica de subir archivo + enviar JSON
+        document
+          .getElementById("crear-tramite-btn")
+          .addEventListener("click", async () => {
+            const nombreTramite =
+              document.getElementById("nombre_tramite").value;
+            const archivoInput = document.getElementById("pdf-upload");
+            const archivo = archivoInput.files[0];
+
+            if (!archivo || !nombreTramite) {
+              alert("Completa todos los campos");
+              return;
+            }
+
+            // 1. Subir PDF
+            const formData = new FormData();
+            formData.append("pdf", archivo);
+            const uploadRes = await fetch(
+              "http://localhost:8080/api/upload_file",
+              {
+                method: "POST",
+                body: formData,
+                credentials: "include",
+              }
+            );
+
+            const uploadData = await uploadRes.json();
+            const archivo_pdf_url = uploadData.url; // ej: "/uploads/miArchivo.pdf"
+
+            // 2. Armar lista de verificadores
+            const verificadores = [];
+            document
+              .querySelectorAll(".verificador-item")
+              .forEach((item, index) => {
+                const nombre =
+                  item.querySelector(".usuario-select").selectedOptions[0]
+                    .textContent;
+                const planta =
+                  item.querySelector(".planta-select").selectedOptions[0]
+                    .textContent;
+
+                verificadores.push({
+                  nombre,
+                  planta,
+                  orden: index + 1,
+                  verificado: index === 0, // solo el primero marcado como verificado
+                });
+              });
+
+            // 3. Enviar JSON
+            const payload = {
+              nombre_tramite: nombreTramite,
+              archivo_pdf_url,
+              verificadores,
+            };
+
+            console.log(payload);
+
+            try {
+              const res = await fetch(
+                "http://localhost:8080/api/nuevo_tramite",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                  credentials: "include",
+                }
+              );
+
+              if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(
+                  `Error ${res.status}: ${errorData.error || "Error desconocido"}`
+                );
+              }
+
+              const result = await res.json();
+              alert("Trámite creado: ID " + result.id_tramite);
+            } catch (error) {
+              console.error("Error al crear trámite:", error);
+              alert("Error al crear trámite: " + error.message);
+            }
+          });
       });
     </script>
   </main>

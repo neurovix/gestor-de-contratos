@@ -5,11 +5,44 @@ import Logo from "../assets/kck.png";
 
 <nav class="w-full flex flex-row items-center px-15 py-5">
     <div class="w-1/2">
-        <a href="/home" class="cursor-pointer"><Image class="w-60 cursor-pointer" src={Logo} alt="Kimberly Clark Logo" /></a>
+        <a href="/home" class="cursor-pointer">
+            <Image class="w-60 cursor-pointer" src={Logo} alt="Kimberly Clark Logo" />
+        </a>
     </div>
     <div class="w-1/2">
         <ul class="flex flex-row justify-end">
-            <li><a href="" class="cursor-pointer hover:underline mx-5 bg-red-700 px-3 py-2 rounded-lg text-white">Cerrar Sesion</a></li>
+            <li>
+                <button id="logout-btn" class="cursor-pointer hover:underline mx-5 bg-red-700 px-3 py-2 rounded-lg text-white">
+                    Cerrar Sesión
+                </button>
+            </li>
         </ul>
     </div>
 </nav>
+
+<script>
+    const logoutBtn = document.getElementById("logout-btn");
+
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/logout", {
+                method: "POST",
+                credentials: "include", // Importante para incluir cookies como session_id
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                window.location.href = "/login";
+            } else {
+                alert("Error al cerrar sesión");
+            }
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+            alert("Ocurrió un error al cerrar sesión");
+        }
+    });
+</script>

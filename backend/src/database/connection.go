@@ -4,34 +4,47 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
-func ConnDB() (*pgx.Conn, error) {
+var (
+	DB   *pgxpool.Pool
+	once sync.Once
+)
+
+func InitDB() error {
 	var err error
 
-	if err = godotenv.Load(".env"); err != nil {
-		return nil, err
-	}
+	once.Do(func() {
+		err = godotenv.Load(".env")
+		if err != nil {
+			return
+		}
 
-	var (
-		databaseUser string = os.Getenv("DATABASE_USER")
-		databasePass string = os.Getenv("DATABASE_PASS")
-		databasePort string = os.Getenv("DATABASE_PORT")
-		databaseName string = os.Getenv("DATABASE_NAME")
-	)
+		databaseUser := os.Getenv("DATABASE_USER")
+		databasePass := os.Getenv("DATABASE_PASS")
+		databasePort := os.Getenv("DATABASE_PORT")
+		databaseName := os.Getenv("DATABASE_NAME")
 
-	connStr := fmt.Sprintf("postgres://%s:%s@localhost:%s/%s", databaseUser, databasePass, databasePort, databaseName)
+		connStr := fmt.Sprintf("postgres://%s:%s@localhost:%s/%s", databaseUser, databasePass, databasePort, databaseName)
 
-	conn, err := pgx.Connect(context.Background(), connStr)
+		config, configErr := pgxpool.ParseConfig(connStr)
+		if configErr != nil {
+			err = configErr
+			return
+		}
 
-	if err != nil {
-		return nil, err
-	}
+		pool, poolErr := pgxpool.New(context.Background(), config.ConnString())
+		if poolErr != nil {
+			err = poolErr
+			return
+		}
 
-	defer conn.Close(context.Background())
+		DB = pool
+	})
 
-	return conn, nil
+	return err
 }

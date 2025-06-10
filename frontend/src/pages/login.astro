@@ -6,28 +6,91 @@ import SmallLogo from "../assets/logo.png";
 ---
 
 <Layout>
-    <main>
-        <NavbarOut />
+  <main>
+    <NavbarOut />
 
-        <section class="flex items-center justify-center">
-            <div class="flex flex-col text-center border-2 border-gray-300 shadow-lg p-8 rounded-xl bg-white">
-                <div>
-                    <Image class="mx-auto w-40" src={SmallLogo} alt="Login logo" />
-                </div>
-                <div class="px-10">
-                    <h1 class="font-bold text-3xl">Inicio de sesion</h1>
-                    <p class="py-3 text-sm">Utilizando la plataforma para el trabajo, te recomendamos utilizar tu correo de trabajo</p>
-                    <form action="" class="flex flex-col items-center px-32">
-                        <input class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1" type="email" placeholder="Correo electronico">
-                        <input class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1" type="password" placeholder="Contraseña">
-                        <button class="bg-blue-700 text-white w-full mt-3 hover:underline cursor-pointer px-4 py-2 rounded-lg" type="submit">CONTINUAR</button>
-                    </form>
-                    <div class="flex flex-row justify-center mt-3">
-                        <p>No tienes una cuenta aun</p>
-                        <a href="/register" class="ml-2 text-blue-600 underline">Registrarme</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
+    <section class="flex items-center justify-center">
+      <div
+        class="flex flex-col text-center border-2 border-gray-300 shadow-lg p-8 rounded-xl bg-white"
+      >
+        <div>
+          <Image class="mx-auto w-40" src={SmallLogo} alt="Login logo" />
+        </div>
+        <div class="px-10">
+          <h1 class="font-bold text-3xl">Inicio de sesion</h1>
+          <p class="py-3 text-sm">
+            Utilizando la plataforma para el trabajo, te recomendamos utilizar
+            tu correo de trabajo
+          </p>
+          <form
+            action=""
+            class="flex flex-col items-center px-32"
+            id="login-form"
+          >
+            <input
+              name="email"
+              class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1"
+              type="email"
+              placeholder="Correo electronico"
+            />
+            <input
+              name="password"
+              class="border-2 border-gray-400 w-full rounded-lg shadow-xl px-4 py-2 my-1"
+              type="password"
+              placeholder="Contraseña"
+            />
+            <button
+              class="bg-blue-700 text-white w-full mt-3 hover:underline cursor-pointer px-4 py-2 rounded-lg"
+              type="submit">CONTINUAR</button
+            >
+          </form>
+          <div class="flex flex-row justify-center mt-3">
+            <p>No tienes una cuenta aun</p>
+            <a href="/register" class="ml-2 text-blue-600 underline"
+              >Registrarme</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const form = document.getElementById("login-form");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        const data = {
+          email: formData.get("email"),
+          password: formData.get("password"),
+        };
+
+        try {
+          const response = await fetch("http://localhost:8080/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+            credentials: 'include'
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            window.location.href = "/home";
+          } else {
+            alert(
+              `Error: ${result.message || "Hubo un problema al iniciar sesion"}`
+            );
+          }
+        } catch (error) {
+          console.error("Error en la solicitud:", error);
+          alert("Error en la solicitud al servidor o password incorrecto");
+        }
+      });
+    </script>
+  </main>
 </Layout>
