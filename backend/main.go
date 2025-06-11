@@ -38,6 +38,11 @@ func main() {
 	// mux.HandleFunc("GET /api/plantas", handlers.GetPlantas)
 	mux.HandleFunc("POST /api/nuevo_tramite", handlers.NuevoTramite)
 	mux.HandleFunc("POST /api/upload_file", handlers.UploadFile)
+	mux.HandleFunc("GET /api/usuarios", handlers.GetEmployeesBasedOnPlant)
+	mux.HandleFunc("GET /api/tramites", handlers.GetTramites)
+	mux.HandleFunc("GET /api/tramite", handlers.GetTramite)
+	mux.HandleFunc("PUT /api/aprobar", handlers.UpdateTramite)
+	mux.HandleFunc("DELETE /api/delete_tramite", handlers.DeleteTramite)
 
 	var router = WithCors(mux)
 

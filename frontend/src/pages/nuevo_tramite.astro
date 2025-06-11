@@ -1,5 +1,4 @@
 ---
-// mismo layout y navbar
 import NavbarIn from "../components/NavbarIn.astro";
 import Layout from "../layouts/Layout.astro";
 ---
@@ -40,7 +39,6 @@ import Layout from "../layouts/Layout.astro";
           Agregar verificadores
         </h1>
 
-        <!-- INICIO AGREGAR VERIFICADORES -->
         <div id="verificadores-container">
           <div
             class="flex flex-row w-full px-15 items-center verificador-item my-3"
@@ -54,35 +52,43 @@ import Layout from "../layouts/Layout.astro";
               <select
                 class="w-full rounded-lg shadow-xl border-2 border-gray-700 px-4 py-2 planta-select"
               >
+                <option value="">Selecciona una planta</option>
                 <option value="1">Planta Bajio</option>
                 <option value="2">Planta Prosede</option>
                 <option value="3">Planta Ramos Arizpe</option>
+                <option value="4">Planta Tlaxcala</option>
+                <option value="5">Planta Ecatepec</option>
+                <option value="6">Planta Morelia</option>
+                <option value="7">Planta San Rafael</option>
+                <option value="8">Planta Texmelucan</option>
+                <option value="9">Planta Toluca</option>
               </select>
             </div>
             <div class="w-8/12 mx-5">
               <select
                 class="w-full border-2 border-gray-700 px-4 py-2 shadow-xl rounded-lg usuario-select"
               >
-                <option value="1">Fernando Alejandro Vazquez Medina</option>
-                <option value="2">Alejandro Vazquez Cortes</option>
+                <option value="">Selecciona un usuario</option>
               </select>
             </div>
             <div class="w-1/12 flex justify-center">
               <button
                 type="button"
                 class="bg-red-600 h-8 w-8 font-bold text-white text-2xl rounded-full eliminar-verificador"
-                >-</button
               >
+                -
+              </button>
             </div>
           </div>
         </div>
-        <!-- FIN AGREGAR VERIFICADORES -->
 
         <div class="flex justify-center items-center my-5">
           <button
             class="text-3xl font-bold w-10 h-10 bg-green-500 hover:bg-green-700 rounded-full text-white"
-            id="agregar">+</button
+            id="agregar"
           >
+            +
+          </button>
         </div>
 
         <button
@@ -100,16 +106,73 @@ import Layout from "../layouts/Layout.astro";
         const container = document.getElementById("verificadores-container");
         const agregarBtn = document.getElementById("agregar");
 
+        // Función que asocia evento a todos los select planta
+        function agregarListenersDePlantas() {
+          const plantaSelects = container.querySelectorAll(".planta-select");
+
+          plantaSelects.forEach((plantaSelect) => {
+            plantaSelect.onchange = async () => {
+              const idPlanta = plantaSelect.value;
+              const usuarioSelect = plantaSelect
+                .closest(".verificador-item")
+                .querySelector(".usuario-select");
+
+              usuarioSelect.innerHTML = '<option value="">Cargando...</option>';
+
+              try {
+                const response = await fetch(
+                  `http://localhost:8080/api/usuarios?id_planta=${idPlanta}`,
+                  {
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+
+                const data = await response.json();
+
+                usuarioSelect.innerHTML =
+                  '<option value="">Selecciona un usuario</option>';
+
+                if (response.ok) {
+                  data.body.forEach((usuario) => {
+                    if (usuario.id_usuario) {
+                      const option = document.createElement("option");
+                      option.value = usuario.id_usuario;
+                      option.textContent = usuario.nombre_usuario;
+                      usuarioSelect.appendChild(option);
+                    }
+                  });
+                } else {
+                  console.error("Error en la respuesta:", data);
+                }
+              } catch (err) {
+                console.error("Error al obtener usuarios:", err);
+                usuarioSelect.innerHTML =
+                  '<option value="">Error al cargar usuarios</option>';
+              }
+            };
+          });
+        }
+
+        agregarListenersDePlantas();
+
         agregarBtn.addEventListener("click", () => {
           const items = container.querySelectorAll(".verificador-item");
           const ultimo = items[items.length - 1];
           const nuevo = ultimo.cloneNode(true);
           const nuevoNumero = items.length + 1;
+
           nuevo.querySelector(".numero-verificador").innerText = nuevoNumero;
+
           nuevo.querySelectorAll("select").forEach((select) => {
             select.selectedIndex = 0;
           });
+
           container.appendChild(nuevo);
+          agregarListenersDePlantas(); // volver a asociar eventos
         });
 
         container.addEventListener("click", (e) => {
@@ -126,7 +189,7 @@ import Layout from "../layouts/Layout.astro";
           }
         });
 
-        // ✅ Lógica de subir archivo + enviar JSON
+        // Subida de archivo y creación del trámite
         document
           .getElementById("crear-tramite-btn")
           .addEventListener("click", async () => {
@@ -140,9 +203,9 @@ import Layout from "../layouts/Layout.astro";
               return;
             }
 
-            // 1. Subir PDF
             const formData = new FormData();
             formData.append("pdf", archivo);
+
             const uploadRes = await fetch(
               "http://localhost:8080/api/upload_file",
               {
@@ -153,36 +216,30 @@ import Layout from "../layouts/Layout.astro";
             );
 
             const uploadData = await uploadRes.json();
-            const archivo_pdf_url = uploadData.url; // ej: "/uploads/miArchivo.pdf"
+            const archivo_pdf_url = uploadData.url;
 
-            // 2. Armar lista de verificadores
             const verificadores = [];
-            document
-              .querySelectorAll(".verificador-item")
-              .forEach((item, index) => {
-                const nombre =
-                  item.querySelector(".usuario-select").selectedOptions[0]
-                    .textContent;
-                const planta =
-                  item.querySelector(".planta-select").selectedOptions[0]
-                    .textContent;
+            document.querySelectorAll(".verificador-item").forEach((item, i) => {
+              const nombre =
+                item.querySelector(".usuario-select").selectedOptions[0]
+                  ?.textContent || "";
+              const planta =
+                item.querySelector(".planta-select").selectedOptions[0]
+                  ?.textContent || "";
 
-                verificadores.push({
-                  nombre,
-                  planta,
-                  orden: index + 1,
-                  verificado: index === 0, // solo el primero marcado como verificado
-                });
+              verificadores.push({
+                nombre,
+                planta,
+                orden: i + 1,
+                verificado: i === 0,
               });
+            });
 
-            // 3. Enviar JSON
             const payload = {
               nombre_tramite: nombreTramite,
               archivo_pdf_url,
               verificadores,
             };
-
-            console.log(payload);
 
             try {
               const res = await fetch(

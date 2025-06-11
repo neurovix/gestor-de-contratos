@@ -44,15 +44,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ✅ Cookie corregida para CORS
 	cookie := &http.Cookie{
 		Name:     "session_id",
 		Value:    strconv.Itoa(userID),
 		Expires:  time.Now().Add(24 * time.Hour),
-		HttpOnly: true,
-		Secure:   false,
+		HttpOnly: false, // ⭐ CAMBIO CLAVE: false para permitir acceso desde JavaScript
+		Secure:   false, // Solo true si usas HTTPS
 		Path:     "/",
+		Domain:   "",                   // ⭐ CAMBIO: vacío es más compatible para localhost
+		SameSite: http.SameSiteLaxMode, // ⭐ AÑADIDO: importante para CORS
 	}
 	http.SetCookie(w, cookie)
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Inicio de sesión exitoso"})
 }

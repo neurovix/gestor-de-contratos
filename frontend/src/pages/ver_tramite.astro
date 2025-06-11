@@ -1,9 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import NavbarIn from "../components/NavbarIn.astro";
-import { Image } from "astro:assets";
-import Mas from "../assets/angulo.png";
-import Waiting from "../assets/espera.png";
 ---
 
 <Layout>
@@ -11,49 +8,40 @@ import Waiting from "../assets/espera.png";
     <NavbarIn />
 
     <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 class="font-rubik text-2xl font-bold mb-6 text-blue-800">
-        Contratación de Director General de Almacén – Planta Ramos Arizpe, Coahuila
+      <h1 id="titulo" class="font-rubik text-2xl font-bold mb-6 text-blue-800">
+        Cargando trámite...
       </h1>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <h2 class="text-blue-700 font-semibold text-lg">No. de contrato</h2>
-          <p class="text-gray-700">CT-2025-1</p>
+          <p id="no_contrato" class="text-gray-700">—</p>
         </div>
         <div>
           <h2 class="text-blue-700 font-semibold text-lg">Creado por</h2>
-          <p><strong>Planta de Ramos Arizpe, Coahuila.</strong> Fernando Alejandro Vazquez Medina</p>
+          <p id="creado_por" class="text-gray-700">—</p>
         </div>
       </div>
 
       <div class="mb-8">
         <h2 class="text-blue-700 font-semibold text-lg">Creado en</h2>
-        <p>YYYY/MM/DD HH:MM:SS</p>
+        <p id="creado_en">—</p>
       </div>
 
       <div class="mb-10">
-        <h2 class="text-xl font-bold text-blue-700 mb-4">Lista de seguimiento</h2>
-        
-        {[1, 2, 3, 4].map((num) => (
-          <div class="flex items-center justify-between bg-white shadow-sm p-4 rounded-lg mb-4 border">
-            <div class="flex items-center gap-3">
-              <div class="bg-green-500 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">
-                {num}
-              </div>
-              <div>
-                <p><strong>Planta:</strong> Ramos Arizpe, Coahuila</p>
-                <p>Fernando Alejandro Vazquez Medina</p>
-              </div>
-            </div>
-            <Image class="w-6" src={num === 1 ? Mas : Waiting} alt="Estatus" />
-          </div>
-        ))}
+        <h2 class="text-xl font-bold text-blue-700 mb-4">
+          Lista de seguimiento
+        </h2>
+        <div id="seguimiento-lista"></div>
       </div>
 
       <section class="mb-10">
-        <h2 class="text-xl font-bold text-blue-700 mb-4">Vista previa del contrato</h2>
+        <h2 class="text-xl font-bold text-blue-700 mb-4">
+          Vista previa del contrato
+        </h2>
         <embed
-          src="/contrato.pdf#page=1"
+          id="pdf_embed"
+          src="/contrato.pdf"
           type="application/pdf"
           class="w-full rounded border shadow"
           style="height: 600px;"
@@ -61,17 +49,24 @@ import Waiting from "../assets/espera.png";
       </section>
 
       <section class="mb-6">
-        <h2 class="text-xl font-bold text-blue-700 mb-4">Estatus de aprobación</h2>
+        <h2 class="text-xl font-bold text-blue-700 mb-4">
+          Estatus de aprobación
+        </h2>
 
-        <div class="mb-2 text-sm text-gray-600">2 de 5 verificadores han aprobado</div>
+        <div id="estatus_aprobacion" class="mb-2 text-sm text-gray-600">—</div>
 
         <div class="w-full bg-gray-300 rounded-full h-6 overflow-hidden mb-4">
-          <div class="bg-blue-600 h-full text-white text-sm font-semibold text-center" style="width: 40%">
-            40%
+          <div
+            id="barra_aprobacion"
+            class="bg-blue-600 h-full text-white text-sm font-semibold text-center"
+            style="width: 0%"
+          >
+            0%
           </div>
         </div>
 
         <button
+          id="btn_aprobar"
           class="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-bold py-2 px-4 rounded transition duration-300"
         >
           APROBAR
@@ -79,4 +74,125 @@ import Waiting from "../assets/espera.png";
       </section>
     </section>
   </main>
+
+  <script type="module">
+    const params = new URLSearchParams(window.location.search);
+    const idTramite = params.get("id-tramite");
+    if (!idTramite) {
+      document.getElementById("titulo").textContent =
+        "Parámetro id-tramite faltante";
+      throw new Error("Falta id-tramite");
+    }
+
+    async function cargarTramite() {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/tramite?id-tramite=${idTramite}`,
+          {
+            credentials: "include",
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Error al obtener el trámite");
+        }
+
+        // Rellenar datos básicos
+        document.getElementById("titulo").textContent = data.nombre_tramite;
+        document.getElementById("no_contrato").textContent = data.no_contrato;
+        document.getElementById("creado_por").textContent = data.creado_por;
+        document.getElementById("creado_en").textContent = data.creado_en;
+
+        // Lista de seguimiento
+        const listaDiv = document.getElementById("seguimiento-lista");
+        listaDiv.innerHTML = "";
+        let aprobados = 0;
+        data.lista_seguimiento.forEach((v) => {
+          if (v.verificado) aprobados++;
+          const item = document.createElement("div");
+          item.className =
+            "flex items-center justify-between bg-white shadow-sm p-4 rounded-lg mb-4 border";
+          item.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="bg-blue-700 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">
+                ${v.orden}
+              </div>
+              <div>
+                <p><strong>Planta:</strong> ${v.planta}</p>
+                <p>${v.nombre}</p>
+              </div>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-semibold ${
+              v.verificado
+                ? "bg-green-500 text-white"
+                : "bg-orange-400 text-white"
+            }">
+              ${v.verificado ? "Aprobado" : "En espera"}
+            </span>
+          `;
+          listaDiv.appendChild(item);
+        });
+
+        // Estatus de aprobación
+        const total = data.lista_seguimiento.length || 1;
+        const porcentaje = Math.round((aprobados / total) * 100);
+        document.getElementById("estatus_aprobacion").textContent =
+          `${aprobados} de ${total} verificadores han aprobado`;
+        const barra = document.getElementById("barra_aprobacion");
+        barra.style.width = porcentaje + "%";
+        barra.textContent = porcentaje + "%";
+
+        // Sección del botón o texto de aprobación
+        const btnAprobar = document.getElementById("btn_aprobar");
+
+        if (data.puede_aprobar) {
+          btnAprobar.style.display = "block";
+          btnAprobar.textContent =
+            aprobados === total ? "YA APROBADO" : "APROBAR";
+          btnAprobar.disabled = aprobados === total;
+        } else {
+          // Reemplaza el botón por un texto tipo botón indicando espera
+          const esperaBtn = document.createElement("div");
+          esperaBtn.textContent = "En espera de aprobación";
+          esperaBtn.className =
+            "w-full bg-gray-400 text-white text-lg font-bold py-2 px-4 rounded text-center";
+          btnAprobar.replaceWith(esperaBtn);
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("titulo").textContent =
+          "Error cargando trámite";
+        document.getElementById("no_contrato").textContent = "-";
+        document.getElementById("creado_por").textContent = err.message;
+      }
+    }
+
+    cargarTramite();
+
+    const btnAprobar = document.getElementById("btn_aprobar");
+    
+    btnAprobar.addEventListener("click", async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/aprobar?id-tramite=${idTramite}`,
+          {
+            method: "PUT",
+            credentials: "include",
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(data.error || "Error al aprobar el trámite");
+
+        // Feedback opcional
+        alert(data.mensaje || "Aprobado correctamente");
+
+        // Recargar para reflejar cambios
+        window.location.reload();
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    });
+  </script>
 </Layout>

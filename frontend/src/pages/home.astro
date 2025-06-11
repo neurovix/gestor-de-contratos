@@ -1,4 +1,5 @@
 ---
+// Parte superior solo importa componentes y assets
 import NavbarIn from "../components/NavbarIn.astro";
 import Layout from "../layouts/Layout.astro";
 import Mas from "../assets/mas.png";
@@ -21,8 +22,22 @@ import { Image } from "astro:assets";
         </a>
       </div>
 
+      <div
+        id="error-container"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
+      >
+      </div>
+      <div
+        id="empty-container"
+        class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4"
+      >
+        No se encontraron trámites para mostrar.
+      </div>
+
       <div class="overflow-x-auto bg-white shadow-md rounded-lg">
-        <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+        <table
+          class="min-w-full text-sm text-left text-gray-700 border border-gray-200"
+        >
           <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
             <tr>
               <th class="px-8 py-4 border-b">ID</th>
@@ -31,37 +46,100 @@ import { Image } from "astro:assets";
               <th class="px-8 py-4 border-b text-center">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {[
-              {
-                id: 1,
-                contrato: "CT-2025-1",
-                nombre:
-                  "Contratación de Director General de Almacén, Planta Ramos Arizpe, Coahuila, Fernando Alejandro Vazquez Medina",
-              },
-              // Puedes duplicar esto para más filas
-            ].map((tramite) => (
-              <tr class="hover:bg-gray-50 transition">
-                <td class="px-8 py-4 border-b text-center">{tramite.id}</td>
-                <td class="px-8 py-4 border-b text-center">
-                  {tramite.contrato}
-                </td>
-                <td class="px-8 py-4 border-b">{tramite.nombre}</td>
-                <td class="px-8 py-4 border-b text-center">
-                  <div class="flex justify-center gap-3">
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md transition">
-                      Ver
-                    </button>
-                    <button class="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-md transition">
-                      Eliminar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+          <tbody id="tramites-body">
+            <!-- Se rellenará dinámicamente con JavaScript -->
           </tbody>
         </table>
       </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+          const cuerpo = document.getElementById("tramites-body");
+          const errorContainer = document.getElementById("error-container");
+          const emptyContainer = document.getElementById("empty-container");
+
+          try {
+            const response = await fetch("http://localhost:8080/api/tramites", {
+              method: "GET",
+              credentials: "include",
+            });
+
+            const headers = Object.fromEntries(response.headers.entries());
+            const json = await response.json();
+
+            if (!response.ok) {
+              errorContainer.textContent =
+                "Error " +
+                response.status +
+                ": " +
+                (json.message || "Error desconocido");
+              errorContainer.classList.remove("hidden");
+              return;
+            }
+
+            const tramites = json.body || [];
+
+            if (tramites.length === 0) {
+              emptyContainer.classList.remove("hidden");
+              return;
+            }
+
+            tramites.forEach((tramite) => {
+              const row = document.createElement("tr");
+              row.classList.add("hover:bg-gray-50", "transition");
+
+              row.innerHTML = `
+              <td class="px-8 py-4 border-b text-center">${tramite.id_tramite}</td>
+              <td class="px-8 py-4 border-b text-center">${tramite.no_contrato || "-"}</td>
+              <td class="px-8 py-4 border-b">${tramite.nombre_tramite}</td>
+              <td class="px-8 py-4 border-b text-center">
+                <div class="flex justify-center gap-3">
+                  <a href="/ver_tramite?id-tramite=${tramite.id_tramite}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-md transition">Ver</a>
+                  <button class="btn-delete bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-md transition" data-id="${tramite.id_tramite}">Eliminar</button>
+                </div>
+              </td>
+            `;
+
+              cuerpo.appendChild(row);
+            });
+            document.querySelectorAll(".btn-delete").forEach((btn) => {
+              btn.addEventListener("click", async (e) => {
+                const id = btn.getAttribute("data-id");
+                const confirmar = confirm(
+                  "¿Estás seguro de eliminar el trámite #" + id + "?"
+                );
+
+                if (!confirmar) return;
+
+                try {
+                  const res = await fetch(
+                    `http://localhost:8080/api/delete_tramite?id-tramite=${id}`,
+                    {
+                      method: "DELETE",
+                      credentials: "include",
+                    }
+                  );
+
+                  const data = await res.json();
+                  if (!res.ok)
+                    throw new Error(
+                      data.error || "Error al eliminar el trámite"
+                    );
+
+                  alert(data.message || "Trámite eliminado correctamente");
+                  location.reload(); // 🔄 Recarga para actualizar la tabla
+                } catch (err) {
+                  alert("Error: " + err.message);
+                }
+              });
+            });
+          } catch (error) {
+            console.error("Error de conexión:", error.message);
+            errorContainer.textContent = "Error de conexión: " + error.message;
+            errorContainer.classList.remove("hidden");
+          }
+        });
+      </script>
     </section>
   </main>
 </Layout>

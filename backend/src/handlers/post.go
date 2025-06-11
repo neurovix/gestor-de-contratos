@@ -136,7 +136,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	defer out.Close()
 
 	io.Copy(out, file)
-	json.NewEncoder(w).Encode(map[string]string{"url": "/uploads/" + header.Filename})
+	json.NewEncoder(w).Encode(map[string]string{"url": "./uploads/" + header.Filename})
 }
 
 func sendJSONError(w http.ResponseWriter, status int, message string) {
